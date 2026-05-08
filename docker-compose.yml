@@ -1,25 +1,45 @@
-version: '3.3'
+version: '3.8'
+
 services:
+  # Base de Datos Centralizada
+  db:
+    image: postgres:16-alpine
+    container_name: fuyu_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fuyu_network
+
+  # WhatsApp API
   evolution_api:
-    image: atendai/evolution-api:v1.8.2
+    image: atendai/evolution-api:latest
     container_name: evolution_api
     restart: always
-    ports:
-      - "8080:8080"
     environment:
-      - SERVER_URL=http://localhost:8080
+      - SERVER_URL=${DOMAIN}:8080
       - DOCKER_ENV=true
       - AUTH_TYPE=apikey
-      - AUTHENTICATION_API_KEY=123456
-      - DATABASE_ENABLED=false
-      - REDIS_ENABLED=false
-      - CACHE_REDIS_ENABLED=false
+      - AUTHENTICATION_API_KEY=${AUTHENTICATION_API_KEY}
+      - DATABASE_ENABLED=true
+      - DATABASE_CONNECTION_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      - DATABASE_SAVE_DATA_INSTANCE=true
+      - DATABASE_SAVE_DATA_CHATS=true
+      - DATABASE_SAVE_DATA_MESSAGES=true
+    ports:
+      - "8080:8080"
     volumes:
       - evolution_instances:/evolution/instances
-      - evolution_store:/evolution/store
     networks:
-      - n8n_network
+      - fuyu_network
+    depends_on:
+      - db
 
+  # Automatización
   n8n:
     image: docker.n8n.io/n8nio/n8n:latest
     container_name: n8n
@@ -27,22 +47,46 @@ services:
     ports:
       - "5678:5678"
     environment:
-      - N8N_HOST=localhost
+      - N8N_HOST=${PUBLIC_IP}
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
       - NODE_ENV=production
-      - WEBHOOK_URL=http://localhost:5678/
-      - GENERIC_TIMEZONE=America/Guayaquil
+      - WEBHOOK_URL=${DOMAIN}:5678/
+      - GENERIC_TIMEZONE=${TIMEZONE}
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=db
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
     volumes:
       - n8n_data:/home/node/.n8n
     networks:
-      - n8n_network
+      - fuyu_network
+    depends_on:
+      - db
+
+  # Dashboard (App Móvil)
+  fuyu_dashboard:
+    build: ./mobile_app
+    container_name: fuyu_dashboard
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - API_KEY=${FUYU_API_KEY}
+      - NODE_ENV=production
+    volumes:
+      - ./mobile_app/data:/usr/src/app/data
+    networks:
+      - fuyu_network
 
 volumes:
   n8n_data:
+  postgres_data:
   evolution_instances:
-  evolution_store:
 
 networks:
-  n8n_network:
+  fuyu_network:
     driver: bridge

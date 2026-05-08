@@ -48,9 +48,11 @@
                     qrImage.style.display = 'block';
                     loadingText.style.display = 'none';
                     statusText.innerText = 'Estado: QR Generado';
-                } else if (data.status === 'connected') {
+                } else if (data.status === 'connected' || (data.instance && data.instance.state === 'open')) {
                     statusText.innerText = 'Estado: Conectado!';
                     loadingText.innerText = '¡Ya estás conectado!';
+                    loadingText.style.display = 'block'; // Make sure this is visible if it says connected
+                    qrImage.style.display = 'none';
                 } else {
                     statusText.innerText = 'Esperando QR...';
                     setTimeout(fetchQR, 5000);

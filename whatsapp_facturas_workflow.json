@@ -1,5 +1,6 @@
 {
-  "name": "WhatsApp Bank Transfers (DEFFINITIVO)",
+  "id": "whatsapp_facturas_final_1",
+  "name": "WhatsApp Multibanco to Mobile App",
   "nodes": [
     {
       "parameters": {
@@ -11,10 +12,7 @@
       "name": "Webhook (Evolution API)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [
-        100,
-        300
-      ]
+      "position": [ 100, 300 ]
     },
     {
       "parameters": {
@@ -34,7 +32,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "123456"
+              "value": "evapi_secret_key_99"
             }
           ]
         }
@@ -42,10 +40,7 @@
       "name": "Fetch Image Base64",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [
-        300,
-        300
-      ]
+      "position": [ 300, 300 ]
     },
     {
       "parameters": {
@@ -56,22 +51,22 @@
           "parameters": [
             {
               "name": "key",
-              "value": "AIzaSyBaa_XL_t_hATtq8t9tqymVJYFNtJVZzs0"
-        }
+              "value": "AIzaSyD2GBRIlxSqDvLa9D7Z4gFWCNcZjAU0AM4"
+            }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"Eres un experto en extracción de datos. Analiza esta imagen de una transferencia del Banco Pichincha y extrae: fecha, monto, número de referencia y nombre del remitente (o beneficiario). Devuelve ÚNICAMENTE un JSON estricto con las claves: fecha, monto, referencia, remitente.\"\n        },\n        {\n          \"inline_data\": {\n            \"mime_type\": \"image/jpeg\",\n            \"data\": \"{{ $node['Fetch Image Base64'].json.base64 }}\"\n          }\n        }\n      ]\n    }\n  ]\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"Actúa como un experto contable. Analiza la imagen del comprobante bancario. Extrae: Banco, Fecha, Monto (solo número), Número de Comprobante y Nombre del Emisor. Devuelve estrictamente un JSON plano sin texto adicional.\"\n        },\n        {\n          \"inline_data\": {\n            \"mime_type\": \"image/jpeg\",\n            \"data\": \"{{ $node['Fetch Image Base64'].json.base64 }}\"\n          }\n        }\n      ]\n    }\n  ]\n}",
         "options": {}
       },
-      "name": "Gemini 1.5 Flash (API)",
+      "name": "Gemini 1.5 Flash",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [
-        500,
-        300
-      ]
+      "position": [ 500, 300 ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
     },
     {
       "parameters": {
@@ -80,42 +75,29 @@
       "name": "Parse JSON",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        700,
-        300
-      ]
+      "position": [ 700, 300 ]
     },
     {
       "parameters": {
-        "operation": "append",
-        "documentId": {
-          "__rl": true,
-          "value": "1RlwWAf20k-A1sjNp9gPURaFmUMPSz5xNdIAAhdaC350",
-          "mode": "id"
+        "method": "POST",
+        "url": "http://fuyu_dashboard:3000/api/webhook",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "fuyu_prod_secret_2026"
+            }
+          ]
         },
-        "sheetName": {
-          "__rl": true,
-          "value": "Hoja 1",
-          "mode": "name"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "Fecha": "={{ $json.fecha }}",
-            "Monto": "={{ $json.monto }}",
-            "Referencia": "={{ $json.referencia }}",
-            "Remitente": "={{ $json.remitente }}"
-          }
-        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
         "options": {}
       },
-      "name": "Google Sheets",
-      "type": "n8n-nodes-base.googleSheets",
+      "name": "Send to Mobile App (Webhook)",
+      "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [
-        900,
-        300
-      ]
+      "position": [ 900, 300 ]
     }
   ],
   "connections": {
@@ -134,14 +116,14 @@
       "main": [
         [
           {
-            "node": "Gemini 1.5 Flash (API)",
+            "node": "Gemini 1.5 Flash",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Gemini 1.5 Flash (API)": {
+    "Gemini 1.5 Flash": {
       "main": [
         [
           {
@@ -156,7 +138,7 @@
       "main": [
         [
           {
-            "node": "Google Sheets",
+            "node": "Send to Mobile App (Webhook)",
             "type": "main",
             "index": 0
           }
