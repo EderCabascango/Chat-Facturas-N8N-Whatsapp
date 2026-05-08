@@ -5,8 +5,9 @@ evolution_store/
 pgdata/
 
 # Credentials
-*.json
 !whatsapp_facturas_workflow.json
+!package.json
+!package-lock.json
 
 # OS files
 .DS_Store
