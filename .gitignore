@@ -1,0 +1,13 @@
+# Docker data
+n8n_data/
+evolution_instances/
+evolution_store/
+pgdata/
+
+# Credentials
+*.json
+!whatsapp_facturas_workflow.json
+
+# OS files
+.DS_Store
+Thumbs.db
