@@ -201,44 +201,63 @@
         }
 
         async function renderCitas() {
-            const res = await fetch('/api/citas', { headers: { 'x-api-key': API_KEY } });
-            const data = await res.json();
-            const grid = document.getElementById('calendar-grid');
-            
-            const startStr = currentStartDate.toISOString().split('T')[0];
-            
-            data.forEach((cita, idx) => {
-                // Lógica de posicionamiento basada en fecha real
-                const [d, m, y] = cita.fecha.split('/');
-                const citaDate = new Date(y, m - 1, d);
-                const diffDays = Math.floor((citaDate - currentStartDate) / (1000 * 60 * 60 * 24));
+            try {
+                const res = await fetch('/api/citas', { headers: { 'x-api-key': API_KEY } });
+                const data = await res.json();
+                const grid = document.getElementById('calendar-grid');
                 
-                if (diffDays >= 0 && diffDays < 5) {
-                    const timeStr = cita.hora || "09:00 AM";
-                    const [time, period] = timeStr.split(' ');
-                    let [h, min] = time.split(':').map(Number);
-                    if (period === 'PM' && h < 12) h += 12;
+                // API devuelve {total, citas:[...]} 
+                const citas = data.citas || data || [];
+                
+                citas.forEach((cita, idx) => {
+                    // Saltar citas sin datos válidos
+                    if (!cita.fecha || !cita.cliente || !cita.hora) return;
+                    if (cita.estado === 'cancelada') return;
                     
-                    const top = (((h - 8) * 60 + min) / 60) * 80;
-                    const colors = ['bg-white border-indigo-500 text-slate-800', 'bg-white border-emerald-500 text-slate-800'];
+                    const parts = cita.fecha.split('/');
+                    if (parts.length < 3) return;
+                    const [d, m, y] = parts;
+                    const citaDate = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+                    const diffDays = Math.floor((citaDate - currentStartDate) / (1000 * 60 * 60 * 24));
                     
-                    const div = document.createElement('div');
-                    div.className = `appt-card ${colors[idx % 2]}`;
-                    div.style.top = `${top}px`;
-                    div.style.left = `calc(80px + (${diffDays} * (100% - 80px) / 5) + 8px)`;
-                    div.style.width = `calc((100% - 80px) / 5 - 16px)`;
-                    div.style.height = `120px`;
-                    div.innerHTML = `
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-[10px] font-black text-indigo-600 uppercase tracking-tighter">${cita.hora}</span>
-                            <div class="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                        </div>
-                        <p class="font-black text-sm tracking-tight leading-tight mb-1">${cita.cliente}</p>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter leading-tight">${cita.servicio}</p>
-                    `;
-                    grid.appendChild(div);
-                }
-            });
+                    if (diffDays >= 0 && diffDays < 5) {
+                        const timeStr = cita.hora || '09:00 AM';
+                        let h = 9, min = 0;
+                        
+                        // Parseo robusto: funciona con "10:00 AM", "14:00", "2:00 PM"
+                        if (timeStr.includes(':')) {
+                            const timeParts = timeStr.trim().split(' ');
+                            const [hRaw, minRaw] = timeParts[0].split(':').map(Number);
+                            h = hRaw || 9;
+                            min = minRaw || 0;
+                            const period = timeParts[1] || '';
+                            if (period.toUpperCase() === 'PM' && h < 12) h += 12;
+                            if (period.toUpperCase() === 'AM' && h === 12) h = 0;
+                        }
+                        
+                        const top = (((h - 8) * 60 + min) / 60) * 80;
+                        const colors = ['bg-white border-indigo-500 text-slate-800', 'bg-white border-emerald-500 text-slate-800'];
+                        
+                        const div = document.createElement('div');
+                        div.className = `appt-card ${colors[idx % 2]}`;
+                        div.style.top = `${top}px`;
+                        div.style.left = `calc(80px + (${diffDays} * (100% - 80px) / 5) + 8px)`;
+                        div.style.width = `calc((100% - 80px) / 5 - 16px)`;
+                        div.style.height = `90px`;
+                        div.innerHTML = `
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-[10px] font-black text-indigo-600 uppercase tracking-tighter">${cita.hora}</span>
+                                <div class="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                            </div>
+                            <p class="font-black text-xs tracking-tight leading-tight mb-0.5 truncate">${cita.cliente}</p>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter leading-tight truncate">${cita.servicio}</p>
+                        `;
+                        grid.appendChild(div);
+                    }
+                });
+            } catch (e) {
+                console.error('Error renderCitas:', e);
+            }
         }
 
         async function loadClientes() {
@@ -255,7 +274,7 @@
                         <div class="w-14 h-14 bg-white shadow-sm border border-slate-100 rounded-2xl flex items-center justify-center font-black text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all text-xl">${c.nombre[0]}</div>
                         <div class="flex-1">
                             <p class="font-black text-slate-800 tracking-tight">${c.nombre}</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${c.telefono}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">CI: ${c.cedula || 'N/A'} | Tel: ${c.telefono}</p>
                         </div>
                     </div>
                 `;
@@ -298,9 +317,8 @@
             `;
         }
 
-        init();
         updateCalendar();
-        loadClientes();
+        setInterval(() => { renderCitas(); }, 30000);
     </script>
 </body>
 </html>
