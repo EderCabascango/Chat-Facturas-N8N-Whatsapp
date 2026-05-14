@@ -1,0 +1,9 @@
+{
+  "name": "fuyu-agenda",
+  "version": "1.0.0",
+  "description": "Professional Scheduling Suite for Fuyu Ecosystem",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "c1",
+    "nombre": "Carlos Ruiz",
+    "telefono": "+593 98 123 4567",
+    "ultima_cita": "11/05/2026",
+    "total_visitas": 12,
+    "historial": [
+      {
+        "fecha": "11/05/2026",
+        "motivo": "Limpieza Dental Profunda",
+        "notas": "Se realizó profilaxis completa. Sangrado leve en encías superiores. Se recomienda uso de hilo dental."
+      },
+      {
+        "fecha": "15/04/2026",
+        "motivo": "Control de Caries",
+        "notas": "Obturación en pieza 34. Sin dolor post-operatorio."
+      }
+    ]
+  },
+  {
+    "id": "c2",
+    "nombre": "Maria Loza",
+    "telefono": "+593 99 987 6543",
+    "ultima_cita": "12/05/2026",
+    "total_visitas": 3,
+    "historial": [
+      {
+        "fecha": "12/05/2026",
+        "motivo": "Consulta Médica General",
+        "notas": "Paciente presenta cuadro gripal. Se receta paracetamol 500mg y reposo por 48h."
+      },
+      {
+        "fecha": "10/01/2026",
+        "motivo": "Chequeo Preventivo",
+        "notas": "Exámenes de sangre normales. Presión arterial estable."
+      }
+    ]
+  },
+  {
+    "id": "c3",
+    "nombre": "Luis Mendez",
+    "telefono": "+593 97 555 4433",
+    "ultima_cita": "13/05/2026",
+    "total_visitas": 1,
+    "historial": [
+      {
+        "fecha": "13/05/2026",
+        "motivo": "Ajuste de Brackets",
+        "notas": "Cambio de ligas y arco superior. Refiere molestia en molares."
+      }
+    ]
+  },
+  {
+    "id": "c1778732723843",
+    "nombre": "Eduardo Vaca",
+    "telefono": "+593 99 888 7777",
+    "ultima_cita": "19/05/2026",
+    "total_visitas": 1,
+    "historial": [
+      {
+        "fecha": "19/05/2026",
+        "motivo": "Consulta Legal",
+        "notas": "Cita agendada vía WhatsApp / Chatbot."
+      }
+    ]
+  }
+]

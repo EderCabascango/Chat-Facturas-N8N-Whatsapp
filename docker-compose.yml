@@ -1,91 +1,31 @@
 version: '3.8'
 
 services:
-  # Base de Datos Centralizada
-  db:
-    image: postgres:16-alpine
-    container_name: fuyu_db
-    restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - fuyu_network
-
-  # WhatsApp API
-  evolution_api:
-    image: atendai/evolution-api:v1.8.2
-    container_name: evolution_api
-    restart: always
-    environment:
-      - SERVER_URL=${DOMAIN}:8080
-      - DOCKER_ENV=true
-      - AUTH_TYPE=apikey
-      - AUTHENTICATION_API_KEY=${AUTHENTICATION_API_KEY}
-      - DATABASE_ENABLED=false
-    ports:
-      - "8080:8080"
-    volumes:
-      - evolution_instances:/evolution/instances
-    networks:
-      - fuyu_network
-    depends_on:
-      - db
-
-  # Automatización
-  n8n:
-    image: docker.n8n.io/n8nio/n8n:latest
-    container_name: n8n
-    restart: always
-    ports:
-      - "5678:5678"
-    environment:
-      - N8N_HOST=${PUBLIC_IP}
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=http
-      - NODE_ENV=production
-      - WEBHOOK_URL=${DOMAIN}:5678/
-      - GENERIC_TIMEZONE=${TIMEZONE}
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=db
-      - DB_POSTGRESDB_PORT=5432
-      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
-      - DB_POSTGRESDB_USER=${POSTGRES_USER}
-      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
-      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - N8N_SECURE_COOKIE=false
-      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
-    volumes:
-      - n8n_data:/home/node/.n8n
-    networks:
-      - fuyu_network
-    depends_on:
-      - db
-
-  # Dashboard (App Móvil)
-  fuyu_dashboard:
-    build: ./mobile_app
-    container_name: fuyu_dashboard
-    restart: always
+  # Aplicación Original de Facturas (Puerto 3000)
+  fuyu-facturas:
+    build:
+      context: ./mobile_app
     ports:
       - "3000:3000"
     environment:
-      - API_KEY=${FUYU_API_KEY}
       - NODE_ENV=production
     volumes:
-      - ./mobile_app/data:/usr/src/app/data
-    networks:
-      - fuyu_network
+      - ./mobile_app/data:/app/data
+    restart: always
 
-volumes:
-  n8n_data:
-  postgres_data:
-  evolution_instances:
+  # Nueva Aplicación de Agenda Profesional (Puerto 3001)
+  fuyu-agenda:
+    build:
+      context: ./FuyuAgendas
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - API_KEY=fuyu_prod_secret_2026
+    volumes:
+      - ./FuyuAgendas/data:/app/data
+    restart: always
 
 networks:
-  fuyu_network:
-    driver: bridge
+  default:
+    name: fuyu-network

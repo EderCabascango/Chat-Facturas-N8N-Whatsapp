@@ -1,0 +1,171 @@
+{
+  "id": "whatsapp_multimodal_fuyu",
+  "name": "WhatsApp Multimodal: Facturas + Agendas",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook_node",
+      "name": "Webhook (Evolution API)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [ 0, 300 ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "type": "string" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ !!$json.body.data.message.imageMessage || !!$json.body.data.message.documentMessage }}",
+                    "rightValue": "true",
+                    "operator": "equals"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Factura"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "type": "string" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ !!$json.body.data.message.conversation || !!$json.body.data.message.extendedTextMessage }}",
+                    "rightValue": "true",
+                    "operator": "equals"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cita"
+            }
+          ]
+        }
+      },
+      "id": "router_node",
+      "name": "Intent Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [ 200, 300 ]
+    },
+    {
+      "parameters": {
+        "url": "http://evolution_api:8080/chat/getBase64FromMediaMessage/pichincha",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [ { "name": "message", "value": "={{ $json.body.data }}" } ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [ { "name": "apikey", "value": "evapi_secret_key_99" } ]
+        }
+      },
+      "id": "fetch_base64",
+      "name": "Fetch Base64",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [ 450, 150 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+        "sendQuery": true,
+        "queryParameters": { "parameters": [ { "name": "key", "value": "={{ $env.GEMINI_API_KEY }}" } ] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"Extrae de este recibo: Banco, Fecha, Monto, Referencia y Emisor. JSON plano.\"\n        },\n        {\n          \"inline_data\": {\n            \"mime_type\": \"image/jpeg\",\n            \"data\": \"{{ $node['Fetch Base64'].json.base64 }}\"\n          }\n        }\n      ]\n    }\n  ]\n}"
+      },
+      "id": "gemini_facturas",
+      "name": "Gemini: Facturas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [ 650, 150 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+        "sendQuery": true,
+        "queryParameters": { "parameters": [ { "name": "key", "value": "={{ $env.GEMINI_API_KEY }}" } ] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"Eres un asistente de agendamiento. El usuario dice: \\\"{{ $json.body.data.message.conversation || $json.body.data.message.extendedTextMessage.text }}\\\". Extrae JSON plano: cliente, fecha (DD/MM/YYYY), hora (HH:MM AM/PM), servicio. No digas nada más.\"\n        }\n      ]\n    }\n  ]\n}"
+      },
+      "id": "gemini_agendas",
+      "name": "Gemini: Agendas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [ 450, 450 ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.first().json.candidates[0].content.parts[0].text;\nreturn [{ json: JSON.parse(text.replace(/```json|```/g, '')) }];"
+      },
+      "id": "parse_node",
+      "name": "Parse JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 850, 300 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://fuyu_dashboard:3000/api/webhook",
+        "headerParameters": { "parameters": [ { "name": "x-api-key", "value": "fuyu_prod_secret_2026" } ] },
+        "sendBody": true,
+        "jsonBody": "={{ $json }}"
+      },
+      "id": "send_facturas",
+      "name": "Send Facturas (3000)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [ 1050, 150 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://fuyu_dashboard:3001/api/webhook/citas",
+        "headerParameters": { "parameters": [ { "name": "x-api-key", "value": "fuyu_prod_secret_2026" } ] },
+        "sendBody": true,
+        "jsonBody": "={{ $json }}"
+      },
+      "id": "send_agendas",
+      "name": "Send Agendas (3001)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [ 1050, 450 ]
+    }
+  ],
+  "connections": {
+    "Webhook (Evolution API)": { "main": [ [ { "node": "Intent Router", "type": "main", "index": 0 } ] ] },
+    "Intent Router": {
+      "main": [
+        [ { "node": "Fetch Base64", "type": "main", "index": 0 } ],
+        [ { "node": "Gemini: Agendas", "type": "main", "index": 0 } ]
+      ]
+    },
+    "Fetch Base64": { "main": [ [ { "node": "Gemini: Facturas", "type": "main", "index": 0 } ] ] },
+    "Gemini: Facturas": { "main": [ [ { "node": "Parse JSON", "type": "main", "index": 0 } ] ] },
+    "Gemini: Agendas": { "main": [ [ { "node": "Parse JSON", "type": "main", "index": 0 } ] ] },
+    "Parse JSON": {
+      "main": [
+        [
+          { "node": "Send Facturas (3000)", "type": "main", "index": 0 },
+          { "node": "Send Agendas (3001)", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  }
+}

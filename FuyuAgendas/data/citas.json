@@ -1,0 +1,44 @@
+[
+  {
+    "cliente": "Carlos Ruiz",
+    "fecha": "11/05/2026",
+    "hora": "10:00 AM",
+    "servicio": "Limpieza Dental Profunda",
+    "id": "101"
+  },
+  {
+    "cliente": "Maria Loza",
+    "fecha": "12/05/2026",
+    "hora": "09:00 AM",
+    "servicio": "Consulta Médica General",
+    "id": "102"
+  },
+  {
+    "cliente": "Luis Mendez",
+    "fecha": "13/05/2026",
+    "hora": "02:00 PM",
+    "servicio": "Ajuste de Brackets",
+    "id": "103"
+  },
+  {
+    "cliente": "Ana Gomez",
+    "fecha": "14/05/2026",
+    "hora": "11:30 AM",
+    "servicio": "Asesoría Legal Corporativa",
+    "id": "104"
+  },
+  {
+    "cliente": "Pedro Paez",
+    "fecha": "15/05/2026",
+    "hora": "04:00 PM",
+    "servicio": "Sesión de Fisioterapia",
+    "id": "105"
+  },
+  {
+    "id": "1778732723841",
+    "cliente": "Eduardo Vaca",
+    "fecha": "19/05/2026",
+    "hora": "03:00 PM",
+    "servicio": "Consulta Legal"
+  }
+]
