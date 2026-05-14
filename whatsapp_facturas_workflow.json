@@ -16,7 +16,7 @@
     },
     {
       "parameters": {
-        "url": "={{ $json.body.data.message.imageMessage ? 'http://evolution_api:8080/chat/getBase64FromMediaMessage/pichincha' : '' }}",
+        "url": "={{ ($json.body.data.message.imageMessage || $json.body.data.message.documentMessage) ? 'http://evolution_api:8080/chat/getBase64FromMediaMessage/pichincha' : '' }}",
         "method": "POST",
         "sendBody": true,
         "bodyParameters": {
@@ -37,7 +37,7 @@
           ]
         }
       },
-      "name": "Fetch Image Base64",
+      "name": "Fetch Base64",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [ 300, 300 ]
@@ -45,7 +45,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -57,7 +57,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"Actúa como un experto contable. Analiza la imagen del comprobante bancario. Extrae: Banco, Fecha, Monto (solo número), Número de Comprobante y Nombre del Emisor. Devuelve estrictamente un JSON plano sin texto adicional.\"\n        },\n        {\n          \"inline_data\": {\n            \"mime_type\": \"image/jpeg\",\n            \"data\": \"{{ $node['Fetch Image Base64'].json.base64 }}\"\n          }\n        }\n      ]\n    }\n  ]\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"Actúa como un experto contable. Analiza el documento o imagen del comprobante bancario. Extrae: Banco, Fecha, Monto (solo número), Número de Comprobante y Nombre del Emisor. Devuelve estrictamente un JSON plano sin texto adicional.\"\n        },\n        {\n          \"inline_data\": {\n            \"mime_type\": \"{{ $node['Webhook (Evolution API)'].json.body.data.message.imageMessage ? 'image/jpeg' : 'application/pdf' }}\",\n            \"data\": \"{{ $node['Fetch Base64'].json.base64 }}\"\n          }\n        }\n      ]\n    }\n  ]\n}",
         "options": {}
       },
       "name": "Gemini 1.5 Flash",
@@ -105,14 +105,14 @@
       "main": [
         [
           {
-            "node": "Fetch Image Base64",
+            "node": "Fetch Base64",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Fetch Image Base64": {
+    "Fetch Base64": {
       "main": [
         [
           {

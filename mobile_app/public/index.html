@@ -10,75 +10,166 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* Slate 50 (Light Mode) */
-            color: #0f172a; /* Slate 900 */
+            background-color: #f8fafc;
+            color: #0f172a;
         }
         .glass-card {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(226, 232, 240, 0.8); /* Slate 200 border */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
         }
-        .text-fuyu-blue {
-            color: #172554; /* Un azul muy oscuro y elegante para 'Fuyu' */
+        .text-fuyu-blue { color: #172554; }
+        .text-fuyu-yellow { color: #eab308; }
+        .bg-fuyu-blue { background-color: #172554; }
+
+        /* Sticky day headers */
+        .day-header {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            background: rgba(248, 250, 252, 0.92);
         }
-        .text-fuyu-yellow {
-            color: #eab308; /* Amarillo vibrante para 'App' */
+
+        /* Month selector buttons */
+        .month-arrow {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e2e8f0;
+            background: white;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: #172554;
+        }
+        .month-arrow:hover:not(:disabled) {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        .month-arrow:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+        .month-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Transaction card entrance */
+        .tx-card {
+            animation: txSlide 0.2s ease-out both;
+        }
+        @keyframes txSlide {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Pulse dot for live status */
+        .live-dot {
+            width: 8px; height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+            50% { opacity: .8; box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+        }
+
+        /* Month transition */
+        .month-content {
+            animation: monthFade 0.25s ease-out;
+        }
+        @keyframes monthFade {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        /* Empty state illustration */
+        .empty-state svg {
+            opacity: 0.15;
         }
     </style>
 </head>
-<body class="min-h-screen p-4 pb-20">
+<body class="min-h-screen pb-20">
+
     <!-- Header -->
-    <header class="flex justify-between items-center mb-6 pt-4">
+    <header class="flex justify-between items-center px-4 pt-6 pb-4">
         <div class="flex items-center">
-            <img src="./fuyudatoslogo.png" alt="Logo Fuyu" class="h-14 w-auto mr-3 object-contain drop-shadow-sm">
+            <img src="./fuyudatoslogo.png" alt="Logo Fuyu" class="h-12 w-auto mr-3 object-contain drop-shadow-sm">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight">
+                <h1 class="text-2xl font-extrabold tracking-tight">
                     <span class="text-fuyu-blue">Fuyu</span><span class="text-fuyu-yellow">App</span>
                 </h1>
-                <p class="text-slate-500 text-sm font-medium">Tu solución en datos</p>
+                <p class="text-slate-400 text-xs font-medium">Tu solución en datos</p>
             </div>
         </div>
-        <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center border border-slate-200 shadow-sm">
-            <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+        <div class="flex items-center space-x-2">
+            <div class="live-dot"></div>
+            <div class="h-9 w-9 rounded-full bg-white flex items-center justify-center border border-slate-200 shadow-sm">
+                <svg class="w-4.5 h-4.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+            </div>
         </div>
     </header>
 
-    <!-- Suma Total Component -->
-    <section class="glass-card rounded-3xl p-6 mb-8 relative overflow-hidden">
-        <!-- Decoración de fondo suave -->
-        <div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-yellow-400 opacity-10 blur-2xl"></div>
-        <div class="absolute bottom-0 left-0 -ml-8 -mb-8 w-32 h-32 rounded-full bg-blue-500 opacity-5 blur-2xl"></div>
-        
-        <p class="text-slate-500 text-sm font-semibold mb-1">Total Ingresado Hoy</p>
-        <h2 class="text-4xl font-extrabold tracking-tight mb-4 text-slate-800">$<span id="total-amount">0.00</span></h2>
-        
-        <div class="flex items-center text-sm">
-            <span class="flex items-center text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100 font-medium">
-                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                Sincronizado
-            </span>
+    <!-- Summary Card -->
+    <section class="px-4 mb-4">
+        <div class="glass-card rounded-2xl p-5 relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mr-6 -mt-6 w-28 h-28 rounded-full bg-yellow-400 opacity-10 blur-2xl"></div>
+            <div class="absolute bottom-0 left-0 -ml-6 -mb-6 w-28 h-28 rounded-full bg-blue-500 opacity-5 blur-2xl"></div>
+            
+            <div class="flex justify-between items-start relative z-10">
+                <div>
+                    <p class="text-slate-400 text-[11px] font-semibold uppercase tracking-wider mb-1" id="summary-label">Total del Mes</p>
+                    <h2 class="text-3xl font-extrabold tracking-tight text-slate-800">$<span id="total-amount">0.00</span></h2>
+                </div>
+                <div class="text-right">
+                    <p class="text-slate-400 text-[11px] font-medium" id="summary-count">0 transacciones</p>
+                    <span class="inline-flex items-center text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 text-[10px] font-semibold mt-1">
+                        <svg class="w-2.5 h-2.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        WhatsApp
+                    </span>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- Últimos Pagos -->
-    <section>
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-slate-800">Últimos Pagos</h3>
-            <div class="flex space-x-2">
-                <button onclick="downloadExcel()" class="text-sm text-emerald-700 font-semibold flex items-center bg-white px-2.5 py-1.5 rounded-lg border border-emerald-200 shadow-sm active:bg-emerald-50 transition-colors">
-                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Excel
-                </button>
-                <button onclick="fetchData()" class="text-sm text-fuyu-blue font-semibold flex items-center bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-sm active:bg-slate-50 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                </button>
-            </div>
+    <!-- Month Selector -->
+    <section class="px-4 mb-3">
+        <div class="flex items-center justify-between">
+            <button id="btn-prev" class="month-arrow" onclick="changeMonth(-1)">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+            <h3 class="text-base font-bold text-slate-800 select-none" id="month-label">Mayo 2026</h3>
+            <button id="btn-next" class="month-arrow" onclick="changeMonth(1)">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+            </button>
         </div>
-        
-        <div id="transactions-list" class="space-y-3">
-            <p class="text-center text-slate-500 py-4 font-medium">Cargando datos...</p>
+    </section>
+
+    <!-- Actions Bar -->
+    <section class="flex justify-between items-center px-4 mb-2">
+        <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider" id="days-info">0 días con actividad</p>
+        <div class="flex space-x-2">
+            <button onclick="downloadExcel()" class="text-[11px] text-emerald-700 font-semibold flex items-center bg-white px-2 py-1.5 rounded-lg border border-emerald-200 shadow-sm active:bg-emerald-50 transition-colors">
+                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Excel
+            </button>
+            <button onclick="fetchData()" class="text-[11px] text-fuyu-blue font-semibold flex items-center bg-white px-2 py-1.5 rounded-lg border border-slate-200 shadow-sm active:bg-slate-50 transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </button>
+        </div>
+    </section>
+
+    <!-- Transactions List with Sticky Day Headers -->
+    <section class="px-4">
+        <div id="transactions-list">
+            <p class="text-center text-slate-400 py-8 text-sm font-medium">Cargando datos...</p>
         </div>
     </section>
 
@@ -90,123 +181,310 @@
         </a>
         <a href="#" class="flex flex-col items-center text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            <span class="text-xs font-medium">Facturas</span>
+            <span class="text-xs font-medium">Reportes</span>
         </a>
     </nav>
 
     <script>
-        async function fetchData() {
+        const API_KEY = 'fuyu_prod_secret_2026';
+        const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        const DAYS_ES = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+        let allData = [];
+        let availableMonths = []; // sorted ascending ["2026-04", "2026-05"]
+        let currentMonthIdx = 0;  // index into availableMonths
+
+        // ─── Helpers ──────────────────────────────────────────────
+        function toLocalDate(ts) {
+            const d = new Date(ts);
+            return {
+                iso: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,
+                monthKey: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,
+                year: d.getFullYear(),
+                month: d.getMonth(),
+                day: d.getDate(),
+                dow: d.getDay(),
+                time: d.toLocaleTimeString('es-EC', { hour:'2-digit', minute:'2-digit' })
+            };
+        }
+
+        function monthLabel(monthKey) {
+            const [y, m] = monthKey.split('-');
+            return `${MONTHS_ES[parseInt(m)-1]} ${y}`;
+        }
+
+        function dayHeaderLabel(isoDate) {
+            const today = new Date();
+            const todayISO = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+            const yestDate = new Date(Date.now() - 86400000);
+            const yestISO = `${yestDate.getFullYear()}-${String(yestDate.getMonth()+1).padStart(2,'0')}-${String(yestDate.getDate()).padStart(2,'0')}`;
+
+            if (isoDate === todayISO) return 'Hoy';
+            if (isoDate === yestISO) return 'Ayer';
+
+            const d = new Date(isoDate + 'T12:00:00');
+            const dayName = DAYS_ES[d.getDay()];
+            const dayNum = d.getDate();
+            const monthName = MONTHS_ES[d.getMonth()].toLowerCase();
+            return `${dayName} ${dayNum} de ${monthName}`;
+        }
+
+        // ─── Data Processing ─────────────────────────────────────
+        function processData() {
+            // Discover available months
+            const monthSet = new Set();
+            allData.forEach(f => {
+                const ts = f.timestamp ? new Date(f.timestamp) : new Date();
+                const mk = `${ts.getFullYear()}-${String(ts.getMonth()+1).padStart(2,'0')}`;
+                monthSet.add(mk);
+            });
+            availableMonths = Array.from(monthSet).sort();
+
+            // Default to latest month
+            if (availableMonths.length > 0) {
+                currentMonthIdx = availableMonths.length - 1;
+            }
+        }
+
+        function getMonthData(monthKey) {
+            // Filter data for this month, group by day
+            const days = {};
+            let monthTotal = 0;
+            let monthCount = 0;
+
+            allData.forEach(f => {
+                const info = toLocalDate(f.timestamp || new Date().toISOString());
+                if (info.monthKey !== monthKey) return;
+
+                if (!days[info.iso]) {
+                    days[info.iso] = { items: [], total: 0, label: dayHeaderLabel(info.iso) };
+                }
+                days[info.iso].items.push({ ...f, _time: info.time });
+                days[info.iso].total += parseFloat(f.monto) || 0;
+                monthTotal += parseFloat(f.monto) || 0;
+                monthCount++;
+            });
+
+            // Sort days descending (newest first)
+            const sortedDays = Object.keys(days).sort((a, b) => b.localeCompare(a));
+
+            return { days, sortedDays, monthTotal, monthCount };
+        }
+
+        // ─── Render ───────────────────────────────────────────────
+        function render() {
             const listEl = document.getElementById('transactions-list');
             const totalEl = document.getElementById('total-amount');
-            
-            try {
-                console.log("Iniciando descarga de datos...");
-                const response = await fetch('/api/facturas', {
-                    headers: { 'x-api-key': 'fuyu_prod_secret_2026' }
-                });
-                const data = await response.json();
-                console.log("Datos recibidos:", data);
-                
-                if (!Array.isArray(data) || data.length === 0) {
-                    listEl.innerHTML = '<p class="text-center text-slate-500 py-8 font-medium">No hay facturas registradas aún.</p>';
-                    totalEl.innerText = "0.00";
-                    return;
-                }
+            const labelEl = document.getElementById('summary-label');
+            const countEl = document.getElementById('summary-count');
+            const monthEl = document.getElementById('month-label');
+            const daysInfoEl = document.getElementById('days-info');
+            const btnPrev = document.getElementById('btn-prev');
+            const btnNext = document.getElementById('btn-next');
 
-                // Calcular Total
-                let sum = 0;
-                data.forEach(f => { sum += parseFloat(f.monto) || 0; });
-                totalEl.innerText = sum.toFixed(2);
+            if (availableMonths.length === 0) {
+                monthEl.textContent = 'Sin datos';
+                totalEl.textContent = '0.00';
+                labelEl.textContent = 'Total del Mes';
+                countEl.textContent = '0 transacciones';
+                daysInfoEl.textContent = '';
+                btnPrev.disabled = true;
+                btnNext.disabled = true;
+                listEl.innerHTML = `
+                    <div class="empty-state flex flex-col items-center justify-center py-16 text-center">
+                        <svg class="w-20 h-20 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <p class="text-slate-400 text-sm font-medium">No hay facturas registradas</p>
+                        <p class="text-slate-300 text-xs mt-1">Envía un comprobante por WhatsApp para comenzar</p>
+                    </div>`;
+                return;
+            }
 
-                // Generar HTML
-                let html = '';
-                for (const factura of data) {
-                    const banco = String(factura.banco || "Banco").toUpperCase();
-                    const monto = (parseFloat(factura.monto) || 0).toFixed(2);
-                    const emisor = factura.emisor || "Desconocido";
-                    const ref = factura.referencia || "-";
-                    const fecha = factura.fecha || "";
-                    
+            const mk = availableMonths[currentMonthIdx];
+            const { days, sortedDays, monthTotal, monthCount } = getMonthData(mk);
+
+            // Update summary
+            monthEl.textContent = monthLabel(mk);
+            totalEl.textContent = monthTotal.toFixed(2);
+            labelEl.textContent = `Total de ${monthLabel(mk)}`;
+            countEl.textContent = `${monthCount} transaccion${monthCount !== 1 ? 'es' : ''}`;
+            daysInfoEl.textContent = `${sortedDays.length} día${sortedDays.length !== 1 ? 's' : ''} con actividad`;
+
+            // Navigation buttons
+            btnPrev.disabled = currentMonthIdx <= 0;
+            btnNext.disabled = currentMonthIdx >= availableMonths.length - 1;
+
+            // Build HTML
+            let html = '<div class="month-content">';
+            let txIdx = 0;
+
+            sortedDays.forEach(dayKey => {
+                const day = days[dayKey];
+                const itemCount = day.items.length;
+
+                // Sticky day header
+                html += `
+                <div class="day-header py-2.5 mb-2 border-b border-slate-100">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-1.5 h-1.5 rounded-full bg-fuyu-blue opacity-40"></div>
+                            <span class="text-xs font-bold text-slate-600">${day.label}</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xs font-bold text-emerald-600">$${day.total.toFixed(2)}</span>
+                            <span class="text-[10px] font-medium text-slate-400">${itemCount} pago${itemCount !== 1 ? 's' : ''}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-2 mb-5">`;
+
+                day.items.forEach(f => {
+                    const banco = String(f.banco || 'Banco').toUpperCase();
+                    const monto = (parseFloat(f.monto) || 0).toFixed(2);
+                    const emisor = f.emisor || 'Desconocido';
+                    const ref = f.referencia || '-';
+                    const fecha = f.fecha || '';
+                    const hora = f._time || '';
+                    const delay = Math.min(txIdx * 30, 300);
+
                     html += `
-                    <div class="glass-card rounded-2xl p-4 flex justify-between items-center transition-all hover:shadow-md">
-                        <div class="flex items-center">
-                            <div class="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center mr-4 text-xl font-bold text-blue-800">
+                    <div class="tx-card glass-card rounded-2xl p-4 flex justify-between items-center" style="animation-delay:${delay}ms">
+                        <div class="flex items-center min-w-0">
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center mr-3 text-base font-bold text-blue-800 flex-shrink-0">
                                 ${banco.charAt(0)}
                             </div>
-                            <div>
-                                <h4 class="font-bold text-slate-800 leading-tight">${banco}</h4>
-                                <p class="text-[11px] font-medium text-slate-500">${emisor} • ${fecha}</p>
+                            <div class="min-w-0">
+                                <h4 class="font-bold text-slate-800 text-[13px] leading-tight truncate">${banco}</h4>
+                                <p class="text-[11px] font-medium text-slate-500 truncate mt-0.5">${emisor}</p>
+                                <p class="text-[10px] text-slate-400">${fecha}${hora ? ' · ' + hora : ''}</p>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <p class="font-bold text-emerald-600 text-lg">+$${monto}</p>
-                            <p class="text-[10px] font-semibold text-slate-400 uppercase">Ref: ${ref}</p>
+                        <div class="text-right flex-shrink-0 ml-3">
+                            <p class="font-bold text-emerald-600 text-base">+$${monto}</p>
+                            <p class="text-[9px] font-semibold text-slate-400 uppercase">Ref: ${ref}</p>
                         </div>
                     </div>`;
+                    txIdx++;
+                });
+
+                html += '</div>';
+            });
+
+            html += '</div>';
+            listEl.innerHTML = html;
+
+            // Scroll to top on month change
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ─── Navigation ──────────────────────────────────────────
+        function changeMonth(delta) {
+            const newIdx = currentMonthIdx + delta;
+            if (newIdx < 0 || newIdx >= availableMonths.length) return;
+            currentMonthIdx = newIdx;
+            render();
+        }
+
+        // ─── Fetch ───────────────────────────────────────────────
+        async function fetchData() {
+            const listEl = document.getElementById('transactions-list');
+            try {
+                const response = await fetch('/api/facturas', {
+                    headers: { 'x-api-key': API_KEY }
+                });
+                allData = await response.json();
+
+                if (!Array.isArray(allData) || allData.length === 0) {
+                    allData = [];
+                    availableMonths = [];
                 }
-                listEl.innerHTML = html;
-                
+
+                processData();
+                render();
             } catch (err) {
-                console.error("Error crítico:", err);
                 listEl.innerHTML = `<div class="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
-                    <b>Error de carga:</b> ${err.message}<br>
-                    Intenta recargar la página.
+                    <b>Error:</b> ${err.message}
                 </div>`;
             }
         }
 
+        // ─── Excel Export (current month, grouped by day) ─────────
         async function downloadExcel() {
             try {
-                const response = await fetch('/api/facturas', {
-                    headers: { 'x-api-key': 'fuyu_prod_secret_2026' }
-                });
-                const data = await response.json();
-                
-                if (!Array.isArray(data) || data.length === 0) {
-                    alert('No hay facturas registradas para exportar.');
+                if (availableMonths.length === 0) {
+                    alert('No hay datos para exportar.');
                     return;
                 }
 
-                // Preparar datos ordenados para Excel (Seguro contra datos corruptos)
-                const excelData = data.map(item => {
-                    const dateObj = item.timestamp ? new Date(item.timestamp) : null;
-                    return {
-                        'Banco': String(item.banco || 'Desconocido').toUpperCase(),
-                        'Fecha de Pago': item.fecha || '-',
-                        'Hora de Recepción': (dateObj && !isNaN(dateObj.getTime())) ? dateObj.toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' }) : '-',
-                        'Monto ($)': parseFloat(item.monto) || 0,
-                        'Referencia': item.referencia || '-',
-                        'Emisor': item.emisor || '-',
-                        'ID Interno': item.id || '-'
-                    };
+                const mk = availableMonths[currentMonthIdx];
+                const { days, sortedDays, monthTotal, monthCount } = getMonthData(mk);
+
+                const rows = [];
+
+                sortedDays.forEach(dayKey => {
+                    const day = days[dayKey];
+
+                    // Day header row
+                    rows.push({
+                        'Día': `── ${day.label} ──`,
+                        'Hora': '',
+                        'Banco': '',
+                        'Monto ($)': '',
+                        'Referencia': '',
+                        'Emisor': '',
+                        'Fecha Comprobante': ''
+                    });
+
+                    day.items.forEach(item => {
+                        rows.push({
+                            'Día': dayKey,
+                            'Hora': item._time || '-',
+                            'Banco': String(item.banco || 'Desconocido').toUpperCase(),
+                            'Monto ($)': parseFloat(item.monto) || 0,
+                            'Referencia': item.referencia || '-',
+                            'Emisor': item.emisor || '-',
+                            'Fecha Comprobante': item.fecha || '-'
+                        });
+                    });
+
+                    // Subtotal
+                    rows.push({
+                        'Día': '',
+                        'Hora': '',
+                        'Banco': `SUBTOTAL (${day.items.length} pagos)`,
+                        'Monto ($)': day.total,
+                        'Referencia': '',
+                        'Emisor': '',
+                        'Fecha Comprobante': ''
+                    });
+
+                    // Blank row
+                    rows.push({ 'Día':'', 'Hora':'', 'Banco':'', 'Monto ($)':'', 'Referencia':'', 'Emisor':'', 'Fecha Comprobante':'' });
                 });
 
-                // Crear el archivo usando SheetJS
-                const worksheet = XLSX.utils.json_to_sheet(excelData);
-                
-                // Dar un poco de formato a las columnas (anchos)
-                const wscols = [
-                    {wch: 15}, {wch: 15}, {wch: 20}, {wch: 12}, {wch: 20}, {wch: 25}, {wch: 20}
-                ];
-                worksheet['!cols'] = wscols;
+                // Grand total
+                rows.push({
+                    'Día': '',
+                    'Hora': '',
+                    'Banco': `TOTAL ${monthLabel(mk).toUpperCase()}`,
+                    'Monto ($)': monthTotal,
+                    'Referencia': `${monthCount} transacciones`,
+                    'Emisor': '',
+                    'Fecha Comprobante': ''
+                });
 
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Facturas Fuyu");
-                
-                // Generar y descargar (Ej: Facturas_Fuyu_24-3-2026.xlsx)
-                const dateStr = new Date().toLocaleDateString('es-EC').replace(/\//g, '-');
-                XLSX.writeFile(workbook, `Facturas_Fuyu_${dateStr}.xlsx`);
-                
+                const ws = XLSX.utils.json_to_sheet(rows);
+                ws['!cols'] = [{wch:14},{wch:8},{wch:28},{wch:12},{wch:18},{wch:34},{wch:22}];
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, monthLabel(mk));
+                XLSX.writeFile(wb, `FuyuApp_${mk}.xlsx`);
             } catch (error) {
-                console.error('Error exporting data:', error);
-                alert('Ocurrió un error al intentar exportar el archivo.');
+                alert('Error al exportar.');
             }
         }
 
-        // Cargar datos al iniciar
+        // ─── Init ────────────────────────────────────────────────
         fetchData();
-        // Refrescar cada 10 segundos
-        setInterval(fetchData, 10000);
+        setInterval(fetchData, 30000);
     </script>
 </body>
 </html>

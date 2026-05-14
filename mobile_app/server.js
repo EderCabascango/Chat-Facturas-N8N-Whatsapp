@@ -27,7 +27,7 @@ if (!fs.existsSync(DB_FILE)) {
     fs.writeFileSync(DB_FILE, JSON.stringify([]));
 }
 
-const API_KEY = process.env.API_KEY || 'fuyu_secret_key_2026';
+const API_KEY = process.env.API_KEY || 'fuyu_prod_secret_2026';
 
 // Middleware de seguridad
 const authenticate = (req, res, next) => {
@@ -41,8 +41,13 @@ const authenticate = (req, res, next) => {
 // Webhook para n8n (Protegido)
 app.post('/api/webhook', authenticate, (req, res) => {
     try {
-        const newData = req.body;
-        console.log("Nueva factura recibida:", newData);
+        let newData = req.body;
+        // Si los datos vienen envueltos en un objeto 'body' (típico de n8n), los sacamos
+        if (newData.body && typeof newData.body === 'object') {
+            newData = newData.body;
+        }
+
+        console.log("Nueva factura procesada:", newData);
         
         const data = JSON.parse(fs.readFileSync(DB_FILE));
         

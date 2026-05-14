@@ -4,6 +4,11 @@ evolution_instances/
 evolution_store/
 pgdata/
 
+# Node
+mobile_app/node_modules/
+mobile_app/uploads/
+mobile_app/data/
+
 # Credentials
 !whatsapp_facturas_workflow.json
 !package.json
