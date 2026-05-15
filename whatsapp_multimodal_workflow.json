@@ -57,7 +57,7 @@
         "method": "POST",
         "url": "http://evolution-api:8080/chat/getBase64FromMediaMessage/pichincha",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "evapi_secret_key_99" }] },
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{ $env.AUTHENTICATION_API_KEY }}" }] },
         "sendBody": true,
         "specifyBody": "keypair",
         "bodyParameters": { "parameters": [{ "name": "message", "value": "={{ $json.body.data }}" }] },
@@ -72,7 +72,7 @@
       "position": [700, 100],
       "parameters": {
         "method": "POST",
-        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyD7mQfy4rWRBZ9wGkB3Tc2yQAu_xtb-ZaA",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={{ $env.GEMINI_API_KEY }}",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={ \"contents\": [{ \"parts\": [{ \"text\": \"Extrae de este recibo bancario los campos: Banco, Fecha, Monto, Referencia, Emisor. Responde UNICAMENTE con un objeto JSON plano sin bloques de codigo.\" }, { \"inline_data\": { \"mime_type\": \"image/jpeg\", \"data\": \"{{ $node['Fetch Base64'].json.base64 }}\" } }] }] }",
@@ -99,7 +99,7 @@
         "method": "POST",
         "url": "http://fuyu_dashboard:3000/api/webhook",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "x-api-key", "value": "fuyu_prod_secret_2026" }] },
+        "headerParameters": { "parameters": [{ "name": "x-api-key", "value": "={{ $env.FUYU_API_KEY }}" }] },
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json) }}",
@@ -116,7 +116,7 @@
         "method": "POST",
         "url": "http://evolution-api:8080/message/sendText/pichincha",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "evapi_secret_key_99" }] },
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{ $env.AUTHENTICATION_API_KEY }}" }] },
         "sendBody": true,
         "specifyBody": "keypair",
         "bodyParameters": {
@@ -191,7 +191,7 @@
         "authentication": "none",
         "sendHeaders": true,
         "specifyHeaders": "json",
-        "jsonHeaders": "{\"x-api-key\": \"fuyu_prod_secret_2026\"}",
+        "jsonHeaders": "={ \"x-api-key\": \"{{ $env.FUYU_API_KEY }}\" }",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "{\"cedula\": \"{cedula}\", \"cliente\": \"{cliente}\", \"telefono\": \"{telefono}\", \"fecha\": \"{fecha}\", \"hora\": \"{hora}\", \"servicio\": \"{servicio}\"}",
@@ -223,7 +223,7 @@
         "authentication": "none",
         "sendHeaders": true,
         "specifyHeaders": "json",
-        "jsonHeaders": "{\"x-api-key\": \"fuyu_prod_secret_2026\"}",
+        "jsonHeaders": "={ \"x-api-key\": \"{{ $env.FUYU_API_KEY }}\" }",
         "placeholderDefinitions": {
           "values": [
             { "name": "telefono", "description": "Numero de telefono del cliente", "type": "string" }
@@ -247,7 +247,7 @@
         "authentication": "none",
         "sendHeaders": true,
         "specifyHeaders": "json",
-        "jsonHeaders": "{\"x-api-key\": \"fuyu_prod_secret_2026\"}",
+        "jsonHeaders": "={ \"x-api-key\": \"{{ $env.FUYU_API_KEY }}\" }",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "{\"fecha\": \"{nueva_fecha}\", \"hora\": \"{nueva_hora}\", \"servicio\": \"{nuevo_servicio}\"}",
@@ -277,7 +277,7 @@
         "authentication": "none",
         "sendHeaders": true,
         "specifyHeaders": "json",
-        "jsonHeaders": "{\"x-api-key\": \"fuyu_prod_secret_2026\"}",
+        "jsonHeaders": "={ \"x-api-key\": \"{{ $env.FUYU_API_KEY }}\" }",
         "placeholderDefinitions": {
           "values": [
             { "name": "cita_id", "description": "ID de la cita a cancelar", "type": "string" }
@@ -297,7 +297,7 @@
         "method": "POST",
         "url": "http://evolution-api:8080/message/sendText/pichincha",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "evapi_secret_key_99" }] },
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{ $env.AUTHENTICATION_API_KEY }}" }] },
         "sendBody": true,
         "specifyBody": "keypair",
         "bodyParameters": {

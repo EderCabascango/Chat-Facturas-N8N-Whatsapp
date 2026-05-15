@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escanear QR WhatsApp - Fuyu</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 { color: #1c1e21; margin-bottom: 10px; }
+        p { color: #606770; margin-bottom: 30px; }
+        #qr-container {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            border: 2px dashed #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        img { max-width: 100%; height: auto; }
+        .loading { color: #0084ff; font-weight: bold; }
+        .status { margin-top: 20px; font-size: 14px; color: #28a745; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Vincular WhatsApp</h1>
+        <p>Abre WhatsApp > Dispositivos vinculados > Vincular un dispositivo</p>
+        
+        <div id="qr-container">
+            <span class="loading" id="loading-text">Cargando código QR en vivo...</span>
+            <img id="qr-image" src="" style="display: none;" alt="Código QR" />
+        </div>
+        
+        <div class="status" id="status-text">Actualizando automáticamente cada 10 segundos...</div>
+    </div>
+
+    <script>
+        const qrImage = document.getElementById('qr-image');
+        const loadingText = document.getElementById('loading-text');
+        const statusText = document.getElementById('status-text');
+        
+        async function fetchQRCode() {
+            try {
+                const response = await fetch("http://136.248.247.250:8080/instance/connect/pichincha", {
+                    method: "GET",
+                    headers: {
+                        "apikey": "evapi_secret_key_99",
+                        "Content-Type": "application/json"
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Si recibimos el base64 del QR
+                    if (data.base64) {
+                        qrImage.src = data.base64;
+                        qrImage.style.display = "block";
+                        loadingText.style.display = "none";
+                        statusText.style.color = "#28a745";
+                        statusText.innerText = "¡QR Actualizado! Escanéalo ahora (Se refresca cada 10s)";
+                    } 
+                    // Si ya está conectado
+                    else if (data.instance && data.instance.state === "open") {
+                        qrImage.style.display = "none";
+                        loadingText.style.display = "block";
+                        loadingText.style.color = "#28a745";
+                        loadingText.innerText = "✅ ¡WhatsApp Conectado Exitosamente!";
+                        statusText.innerText = "Ya puedes cerrar esta ventana.";
+                    }
+                } else {
+                    throw new Error("Error en la conexión con la API");
+                }
+            } catch (error) {
+                console.error("Error al obtener el QR:", error);
+                statusText.style.color = "#dc3545";
+                statusText.innerText = "Problema de red. Asegúrate de estar conectado a internet.";
+            }
+        }
+
+        // Obtener el QR inmediatamente al cargar la página
+        fetchQRCode();
+        
+        // Refrescar el QR cada 10 segundos para que nunca caduque mientras la página esté abierta
+        setInterval(fetchQRCode, 10000);
+    </script>
+</body>
+</html>

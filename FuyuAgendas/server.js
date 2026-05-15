@@ -10,7 +10,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 const DATA_DIR = path.join(__dirname, 'data');
 const CITAS_FILE = path.join(DATA_DIR, 'citas.json');
 const CLIENTES_FILE = path.join(DATA_DIR, 'clientes.json');
-const API_KEY = process.env.API_KEY || 'fuyu_prod_secret_2026';
+const API_KEY = process.env.API_KEY;
+if (!API_KEY) {
+    console.error("FATAL: API_KEY no definida para Fuyu Agenda.");
+    process.exit(1);
+}
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
 if (!fs.existsSync(CITAS_FILE)) fs.writeFileSync(CITAS_FILE, '[]');

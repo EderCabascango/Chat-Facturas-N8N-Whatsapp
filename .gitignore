@@ -18,3 +18,9 @@ mobile_app/data/
 .DS_Store
 Thumbs.db
 .env
+
+# App Data
+FuyuAgendas/node_modules/
+FuyuAgendas/data/
+mobile_app/node_modules/
+mobile_app/data/

@@ -32,7 +32,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "evapi_secret_key_99"
+              "value": "={{ $env.AUTHENTICATION_API_KEY }}"
             }
           ]
         }
@@ -85,7 +85,7 @@
           "parameters": [
             {
               "name": "x-api-key",
-              "value": "fuyu_prod_secret_2026"
+              "value": "={{ $env.FUYU_API_KEY }}"
             }
           ]
         },

@@ -27,7 +27,11 @@ if (!fs.existsSync(DB_FILE)) {
     fs.writeFileSync(DB_FILE, JSON.stringify([]));
 }
 
-const API_KEY = process.env.API_KEY || 'fuyu_prod_secret_2026';
+const API_KEY = process.env.API_KEY;
+if (!API_KEY) {
+    console.error("FATAL: API_KEY no definida en el entorno.");
+    process.exit(1);
+}
 
 // Middleware de seguridad
 const authenticate = (req, res, next) => {
@@ -55,9 +59,9 @@ app.post('/api/webhook', authenticate, (req, res) => {
             id: Date.now().toString(),
             banco: newData.Banco || newData.banco || "Desconocido",
             fecha: newData.Fecha || newData.fecha || new Date().toLocaleDateString(),
-            monto: parseFloat(newData.Monto || newData.monto || 0),
-            referencia: newData["Número de Comprobante"] || newData.referencia || "-",
-            emisor: newData["Nombre del Emisor"] || newData.emisor || "Desconocido",
+            monto: parseFloat((newData.Monto || newData.monto || "0").toString().replace(/[^0-9.-]+/g,"")),
+            referencia: newData.Referencia || newData.referencia || newData["Número de Comprobante"] || "-",
+            emisor: newData.Emisor || newData.emisor || newData["Nombre del Emisor"] || "Desconocido",
             timestamp: new Date().toISOString()
         };
         
